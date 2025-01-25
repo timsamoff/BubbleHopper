@@ -3,29 +3,52 @@ using System.Collections;
 
 public class BubbleSpawner : MonoBehaviour
 {
+    [Header("Bubble Spawner Settings")]
     [SerializeField] private GameObject bubblePrefab;
-    [SerializeField] private float minSpawnDistance = 2f;
-    [SerializeField] private float maxSpawnDistance = 5f;
-    [SerializeField] private float bubbleLifetime = 3f;
-    [SerializeField] private float spawnInterval = 1.5f;
-    [SerializeField] private float popAnimationDuration = 0.5f;
+    [SerializeField] private float spawnInterval = 3f;
+    [SerializeField] private float bubbleSpawnDistance = 100f;
+    [SerializeField] private float minZThreshold = 10f;
+    [SerializeField] private float maxZThreshold = 15f;
+    [SerializeField] private float minXThreshold = -5f;
+    [SerializeField] private float maxXThreshold = 5f;
+    [SerializeField] private float minBubbleLifetime = 2f;
+    [SerializeField] private float maxBubbleLifetime = 5f;
+    [SerializeField] private float floatSpeed = 1f;
+    [SerializeField] private float popThreshold = 2f;
+
+    [Header("Water Surface")]
     [SerializeField] private Transform waterSurface;
-    [SerializeField] private float zAxisThreshold = 3f;  // Bubble stray range on Z-axis
-    [SerializeField] private float firstBubbleEdgeOffset = 2f;  // Distance from the -X edge
-    [SerializeField] private float minBubbleSize = 0.5f;  // Min bubble size
-    [SerializeField] private float maxBubbleSize = 1.5f;  // Max bubble size
+
+    [Header("Bubble Movement Settings")]
+    [SerializeField] private bool bubbleMovementEnabled = true;
+    [SerializeField] private bool bubblePoppingEnabled = true;
+
+    [Header("Player Settings")]
+    [SerializeField] private Transform player;
+    [SerializeField] private float zSubtractedFromPlayer = 3f;
 
     private GameObject firstBubble;
     private Vector3 lastBubblePosition;
     private bool firstBubblePopped = false;
     private Vector3 waterSize;
     private Vector3 waterPosition;
+    private bool placeOnRightSide = true;
 
     private void Start()
     {
         waterSize = waterSurface.localScale;
         waterPosition = waterSurface.position;
         SpawnFirstBubble();
+    }
+
+    private void Update()
+    {
+        if (!firstBubblePopped && firstBubble != null && HasPlayerLeftFirstBubble())
+        {
+            StartCoroutine(PopBubble(firstBubble));
+            firstBubblePopped = true;
+            StartCoroutine(SpawnBubbles());
+        }
     }
 
     private void SpawnFirstBubble()
@@ -37,22 +60,11 @@ public class BubbleSpawner : MonoBehaviour
         StartCoroutine(RiseBubble(firstBubble));
     }
 
-    private void Update()
-    {
-        if (!firstBubblePopped && HasPlayerLeftFirstBubble())
-        {
-            StartCoroutine(PopBubble(firstBubble));
-            firstBubblePopped = true;
-            StartCoroutine(SpawnBubbles());
-        }
-    }
-
     private bool HasPlayerLeftFirstBubble()
     {
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
         if (player != null)
         {
-            float distance = Vector3.Distance(player.transform.position, firstBubble.transform.position);
+            float distance = Vector3.Distance(player.position, firstBubble.transform.position);
             return distance > 1.5f;
         }
         return false;
@@ -75,48 +87,40 @@ public class BubbleSpawner : MonoBehaviour
         lastBubblePosition = spawnPosition;
 
         StartCoroutine(RiseBubble(newBubble));
-        StartCoroutine(PopBubble(newBubble));
+
+        if (bubbleMovementEnabled)
+        {
+            StartCoroutine(FloatBubble(newBubble));  // Start floating towards the player
+        }
+
+        if (bubblePoppingEnabled)
+        {
+            StartCoroutine(PopBubble(newBubble)); // Pop bubble after its lifetime
+        }
     }
 
     private Vector3 GetFirstBubblePosition()
     {
-        float halfWidth = waterSize.x * 0.5f;
-        float spawnX = waterPosition.x - halfWidth + firstBubbleEdgeOffset;
-        float spawnZ = waterPosition.z;  // Ensure Z=0 for the first bubble
-        float spawnY = waterPosition.y - waterSize.y * 0.5f;  // Fully submerged
+        if (player != null)
+        {
+            Vector3 playerPosition = player.position;
 
-        return new Vector3(spawnX, spawnY, spawnZ);
+            return new Vector3(playerPosition.x, waterPosition.y - waterSize.y * 0.5f, playerPosition.z);
+        }
+        return Vector3.zero;
     }
 
     private Vector3 GetValidSpawnPosition()
     {
-        Vector3 spawnPosition;
-        int attempts = 0;
+        float spawnZ = player.position.z + bubbleSpawnDistance;
 
-        do
-        {
-            spawnPosition = GetRandomSpawnPosition();
-            float distance = Vector3.Distance(spawnPosition, lastBubblePosition);
-            if (distance >= minSpawnDistance && distance <= maxSpawnDistance)
-            {
-                return spawnPosition;
-            }
-            attempts++;
-        }
-        while (attempts < 10);
+        spawnZ += Random.Range(minZThreshold, maxZThreshold);
 
-        return lastBubblePosition + new Vector3(minSpawnDistance, 0, 0); // Default to min distance if no valid position found
-    }
+        float spawnX = player.position.x + Random.Range(minXThreshold, maxXThreshold);
 
-    private Vector3 GetRandomSpawnPosition()
-    {
-        float halfWidth = waterSize.x * 0.5f;
+        float spawnY = waterPosition.y - waterSize.y * 0.5f;
 
-        float randomX = lastBubblePosition.x + Random.Range(minSpawnDistance, maxSpawnDistance);
-        float randomZ = waterPosition.z + Random.Range(-zAxisThreshold, zAxisThreshold);
-        float spawnY = waterPosition.y - waterSize.y * 0.5f;  // Fully submerged
-
-        return new Vector3(randomX, spawnY, randomZ);
+        return new Vector3(spawnX, spawnY, spawnZ);
     }
 
     private IEnumerator RiseBubble(GameObject bubble)
@@ -128,33 +132,63 @@ public class BubbleSpawner : MonoBehaviour
         );
 
         float riseSpeed = 2f;
-        while (bubble.transform.position.y < targetPosition.y)
+        while (bubble != null && bubble.transform.position.y < targetPosition.y)
         {
             bubble.transform.position = Vector3.MoveTowards(bubble.transform.position, targetPosition, riseSpeed * Time.deltaTime);
             yield return null;
         }
     }
 
+    private IEnumerator FloatBubble(GameObject bubble)
+    {
+        if (bubble == null) yield break;
+
+        Vector3 startPosition = bubble.transform.position;
+        Vector3 targetPosition = new Vector3(
+            startPosition.x,
+            startPosition.y,
+            player.position.z - zSubtractedFromPlayer  // Move towards the player along the Z-axis
+        );
+
+        float timeElapsed = 0f;
+        while (bubble != null && timeElapsed < floatSpeed)
+        {
+            bubble.transform.position = Vector3.Lerp(startPosition, targetPosition, timeElapsed / floatSpeed);
+            timeElapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        bubble.transform.position = targetPosition; // Ensure it reaches the final position
+    }
+
     private IEnumerator PopBubble(GameObject bubble)
     {
-        yield return new WaitForSeconds(bubbleLifetime);
+        if (bubble == null || !bubblePoppingEnabled || firstBubble == bubble) yield break; // Exit if bubble is first or popping is disabled
+
+        float randomLifetime = Random.Range(minBubbleLifetime, maxBubbleLifetime);
+
+        yield return new WaitForSeconds(randomLifetime); // Wait for random lifetime
 
         float elapsedTime = 0f;
         Vector3 originalScale = bubble.transform.localScale;
 
-        while (elapsedTime < popAnimationDuration)
+        while (elapsedTime < popThreshold && bubble != null)
         {
-            bubble.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, elapsedTime / popAnimationDuration);
+            bubble.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, elapsedTime / popThreshold);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        Destroy(bubble);
+        if (bubble != null)
+        {
+            Destroy(bubble);
+        }
     }
 
     private void SetRandomBubbleSize(GameObject bubble)
     {
-        float randomSize = Random.Range(minBubbleSize, maxBubbleSize);
+        float randomSize = Random.Range(0.5f, 1.5f);
         bubble.transform.localScale = new Vector3(randomSize, randomSize, randomSize);
     }
 }
+
