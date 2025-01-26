@@ -15,6 +15,9 @@ public class MoveEnvironment : MonoBehaviour
     private float steadySpeedDuration;
     private float totalDuration;
 
+    // Store start position for the ease-out phase
+    private Vector3 easeOutStartPosition;
+
     void Start()
     {
         startPosition = transform.position;
@@ -52,7 +55,7 @@ public class MoveEnvironment : MonoBehaviour
 
             if (elapsedTime >= totalDuration)
             {
-                transform.position = targetPosition;
+                transform.position = targetPosition; // Ensure it stops at the target position
                 isMoving = false;
             }
         }
@@ -63,11 +66,13 @@ public class MoveEnvironment : MonoBehaviour
 
             float progress = Mathf.Clamp01(elapsedTime / easeOutDuration);
             float easedProgress = Mathf.Pow(1f - progress, 2);
-            transform.position = Vector3.Lerp(transform.position, targetPosition, easedProgress);
+            transform.position = Vector3.Lerp(easeOutStartPosition, targetPosition, easedProgress);
 
             if (progress >= 1f)
             {
+                transform.position = targetPosition; // Make sure we stop exactly at the target position
                 isMoving = false;
+                isEaseOut = false;
             }
         }
     }
@@ -93,6 +98,10 @@ public class MoveEnvironment : MonoBehaviour
 
     public void StartEaseOut()
     {
+        // Save the current position for the ease-out transition
+        easeOutStartPosition = transform.position;
+
+        // Set flag to begin ease-out
         isEaseOut = true;
         elapsedTime = 0f;
     }

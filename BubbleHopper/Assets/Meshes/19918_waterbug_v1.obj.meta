@@ -8,7 +8,7 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: 19918_waterbug_v1Mat
-    second: {fileID: 2100000, guid: 2b4703ed0c924964984c676337b8bd1a, type: 2}
+    second: {fileID: 2100000, guid: 67abc34e120c85c459766a680429ddc8, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0

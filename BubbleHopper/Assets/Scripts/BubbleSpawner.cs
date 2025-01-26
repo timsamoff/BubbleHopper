@@ -33,6 +33,8 @@ public class BubbleSpawner : MonoBehaviour
     private Vector3 waterPosition;
     private bool placeOnRightSide = true;
 
+    private bool isInputReceived = false; // New flag to track if input was received
+
     private void Start()
     {
         SetupBubbleParentHierarchy();
@@ -41,15 +43,23 @@ public class BubbleSpawner : MonoBehaviour
         waterPosition = waterSurface.position;
 
         SpawnFirstBubble();
-
-        if (!spawnOneBubbleOnly)
-        {
-            StartCoroutine(SpawnBubbles());
-        }
     }
 
     private void Update()
     {
+        // Check for input to start bubble spawning
+        if (!isInputReceived && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) ||
+                                 Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) ||
+                                 Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) ||
+                                 Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D)))
+        {
+            isInputReceived = true; // Set the flag to true after input is received
+            if (!spawnOneBubbleOnly)
+            {
+                StartCoroutine(SpawnBubbles()); // Start spawning bubbles after input
+            }
+        }
+
         if (!firstBubblePopped && firstBubble != null && HasPlayerLeftFirstBubble())
         {
             StartCoroutine(PopBubble(firstBubble));
@@ -77,6 +87,7 @@ public class BubbleSpawner : MonoBehaviour
 
         bubbleParent = bubblesObject.transform;
     }
+
     private void SpawnFirstBubble()
     {
         Vector3 startPosition = GetFirstBubblePosition();
@@ -99,7 +110,7 @@ public class BubbleSpawner : MonoBehaviour
 
     private IEnumerator SpawnBubbles()
     {
-        while (true)
+        while (isInputReceived) // Continue spawning bubbles if input is received
         {
             SpawnBubble();
             yield return new WaitForSeconds(spawnInterval);
@@ -176,12 +187,16 @@ public class BubbleSpawner : MonoBehaviour
         float riseSpeed = 2f;
         while (bubble != null && bubble.transform.position.y < targetPosition.y)
         {
+            if (bubble == null) yield break;
+
             bubble.transform.position = Vector3.MoveTowards(bubble.transform.position, targetPosition, riseSpeed * Time.deltaTime);
             yield return null;
         }
 
-        // Now apply the bobbing movement
-        StartCoroutine(BobBubble(bubble));
+        if (bubble != null)
+        {
+            StartCoroutine(BobBubble(bubble));
+        }
     }
 
     private IEnumerator BobBubble(GameObject bubble)
@@ -194,11 +209,9 @@ public class BubbleSpawner : MonoBehaviour
         {
             float newY = startY + Mathf.Sin(Time.time * bobbingSpeed) * bobbingAmplitude;
 
-            if (bubble != null)
-            {
-                bubble.transform.position = new Vector3(bubble.transform.position.x, newY, bubble.transform.position.z);
-            }
+            if (bubble == null) yield break;
 
+            bubble.transform.position = new Vector3(bubble.transform.position.x, newY, bubble.transform.position.z);
             yield return null;
         }
     }
@@ -209,11 +222,15 @@ public class BubbleSpawner : MonoBehaviour
 
         yield return new WaitForSeconds(bubbleLifetime);
 
+        if (bubble == null) yield break;
+
         float elapsedTime = 0f;
         Vector3 originalScale = bubble.transform.localScale;
 
         while (elapsedTime < popAnimationDuration && bubble != null)
         {
+            if (bubble == null) yield break;
+
             bubble.transform.localScale = Vector3.Lerp(originalScale, Vector3.zero, elapsedTime / popAnimationDuration);
             elapsedTime += Time.deltaTime;
             yield return null;

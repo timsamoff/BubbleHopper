@@ -1,4 +1,6 @@
 using UnityEngine;
+using Unity.Collections;
+using UnityEngine.SceneManagement;
 
 public class FinishLine : MonoBehaviour
 {
@@ -6,12 +8,15 @@ public class FinishLine : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("FinishLine"))
+        if (other.gameObject.CompareTag("FinishLine"))
         {
-            if (moveEnvironment != null)
-            {
-                moveEnvironment.StartEaseOut();
-            }
+            Invoke("EndGame", 1f);
         }
+    }
+
+    void EndGame()
+    {
+        moveEnvironment.enabled = false;
+        SceneManager.LoadScene("End");
     }
 }
