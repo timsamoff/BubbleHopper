@@ -25,6 +25,7 @@ public class BubbleSpawner : MonoBehaviour
     [SerializeField] private bool enablePopping = true;
     [SerializeField] private bool spawnOneBubbleOnly = false;
 
+    private Transform bubbleParent;
     private GameObject firstBubble;
     private Vector3 lastBubblePosition;
     private bool firstBubblePopped = false;
@@ -34,6 +35,8 @@ public class BubbleSpawner : MonoBehaviour
 
     private void Start()
     {
+        SetupBubbleParentHierarchy();
+
         waterSize = waterSurface.localScale;
         waterPosition = waterSurface.position;
 
@@ -55,10 +58,29 @@ public class BubbleSpawner : MonoBehaviour
         }
     }
 
+    private void SetupBubbleParentHierarchy()
+    {
+        GameObject envObject = GameObject.Find("Env");
+
+        if (envObject == null)
+        {
+            envObject = new GameObject("Env");
+        }
+
+        GameObject bubblesObject = envObject.transform.Find("Bubbles")?.gameObject;
+
+        if (bubblesObject == null)
+        {
+            bubblesObject = new GameObject("Bubbles");
+            bubblesObject.transform.SetParent(envObject.transform);
+        }
+
+        bubbleParent = bubblesObject.transform;
+    }
     private void SpawnFirstBubble()
     {
         Vector3 startPosition = GetFirstBubblePosition();
-        firstBubble = Instantiate(bubblePrefab, startPosition, Quaternion.identity);
+        firstBubble = Instantiate(bubblePrefab, startPosition, Quaternion.identity, bubbleParent);
         SetRandomBubbleSize(firstBubble);
         lastBubblePosition = startPosition;
         StartCoroutine(RiseBubble(firstBubble));
@@ -87,13 +109,12 @@ public class BubbleSpawner : MonoBehaviour
     private void SpawnBubble()
     {
         Vector3 spawnPosition = GetValidSpawnPosition();
-        GameObject newBubble = Instantiate(bubblePrefab, spawnPosition, Quaternion.identity);
+        GameObject newBubble = Instantiate(bubblePrefab, spawnPosition, Quaternion.identity, bubbleParent);
         SetRandomBubbleSize(newBubble);
         lastBubblePosition = spawnPosition;
 
         StartCoroutine(RiseBubble(newBubble));
 
-        // Only start popping bubbles if enablePopping is true
         if (enablePopping)
         {
             StartCoroutine(PopBubble(newBubble));
