@@ -17,6 +17,8 @@ public class FinishLine : MonoBehaviour
     void EndGame()
     {
         moveEnvironment.enabled = false;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         SceneManager.LoadScene("End");
     }
 }
