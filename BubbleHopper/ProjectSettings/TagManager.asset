@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Water
   - Bubble
+  - FinishLine
   layers:
   - Default
   - TransparentFX
