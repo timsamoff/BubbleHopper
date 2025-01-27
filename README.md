@@ -11,8 +11,8 @@ Bubble Hopper is a simple game in which you play as a waterbug, capturing bubble
 
 ## Diversifiers
 
-* Nurture yourself with Nature
-* Sharing is caring
+* Nurture yourself with Nature (G4C University Student Challenge)
+* Sharing is caring (Sponsored by Github)
 * Tranquility​
 
 *(Diversifier descriptions [here](https://globalgamejam.org/news/global-game-jam-2025-diversifiers-are-here).)*
