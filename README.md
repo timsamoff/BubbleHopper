@@ -6,8 +6,8 @@
 ## About
 Bubble Hopper is a simple game in which you play as a waterbug, capturing bubbles.
 
- Tim Samoff (samoff@gmail.com): Game design and programming
- Josiah Samoff: Music
+* Tim Samoff (samoff@gmail.com): Game design and programming
+* Josiah Samoff: Music
 
 ## Diversifiers
 
