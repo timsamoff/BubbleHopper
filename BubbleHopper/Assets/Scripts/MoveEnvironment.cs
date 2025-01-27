@@ -36,8 +36,10 @@ public class MoveEnvironment : MonoBehaviour
 
     void Update()
     {
-        if (!isMoving && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow)
-                         || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow)))
+        if (!isMoving && (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.DownArrow) ||
+                                 Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) ||
+                                 Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) ||
+                                 Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D)))
         {
             isMoving = true;
             elapsedTime = 0f;
