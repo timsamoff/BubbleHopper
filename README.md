@@ -21,7 +21,7 @@ Made with ❤ during Global Game Jam 2025.
 
 ## How To Play
 
-1. [Play Buble Hopper on itch.io](https://timsamoff.itch.io/bh) or download and extract [LooseyGoosey-WIN.zip](https://github.com/timsamoff/BubbleHopper/blob/main/WindowsBuild/BubbleHopper-WIN.zip) (Windows only).
+1. [Play Bubble Hopper on itch.io](https://timsamoff.itch.io/bh) or download and extract [LooseyGoosey-WIN.zip](https://github.com/timsamoff/BubbleHopper/blob/main/WindowsBuild/BubbleHopper-WIN.zip) (Windows only).
 2. Use the left and right arrow keys (or W and D) to collect bubbles!
 
 ## License
