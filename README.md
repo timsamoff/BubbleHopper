@@ -6,8 +6,8 @@
 ## About
 Bubble Hopper is a simple game in which you play as a waterbug, capturing bubbles.
 
-Tim Samoff (samoff@gmail.com): Game design and programming
-Josiah Samoff: Music
+ Tim Samoff (samoff@gmail.com): Game design and programming
+ Josiah Samoff: Music
 
 ## Diversifiers
 
@@ -16,6 +16,8 @@ Josiah Samoff: Music
 * Tranquility​
 
 *(Diversifier descriptions [here](https://globalgamejam.org/news/global-game-jam-2025-diversifiers-are-here).)*
+
+Made with ❤ during Global Game Jam 2025.
 
 ## How To Play
 
