@@ -1,4 +1,4 @@
-
+﻿
 <img src="https://github.com/timsamoff/BubbleHopper/blob/main/Screenshots/gh.png?raw=true">
 
 # Bubble Hopper
@@ -11,7 +11,9 @@ Josiah Samoff: Music and sound effects
 
 ## Diversifiers
 
-* TBD
+* Nurture yourself with Nature
+* Sharing is caring
+* Tranquility​
 
 *(Diversifier descriptions [here](https://globalgamejam.org/news/global-game-jam-2025-diversifiers-are-here).)*
 
